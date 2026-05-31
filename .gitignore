@@ -1,0 +1,36 @@
+# --- Database ---
+*.db
+*.db-shm
+*.db-wal
+
+# --- Python bytecode ---
+__pycache__/
+*.pyc
+*.pyo
+
+# --- Runtime output ---
+logs/
+exports/
+checkpoints/
+custom_scrapes/
+browser_session.json
+errors.log
+mnt/
+
+# --- Testing ---
+.pytest_cache/
+
+# --- Tooling caches ---
+.ruff_cache/
+.roo/
+
+# --- Environment ---
+.env
+
+# --- Virtual environments ---
+.venv/
+venv/
+
+# --- Archives ---
+*.tar.gz
+*.zip
