@@ -108,7 +108,7 @@ async def _process_queue(
             for row in pending:
                 queue_id = row["queue_id"]
                 url = row["url"]
-                retries = row["retries"]
+                retries = row["retries"] or 0
 
                 if retries >= settings.RETRY_MAX:
                     await queries.queue_mark_failed(queue_id, "Max retries exceeded")
@@ -155,7 +155,6 @@ async def _process_queue(
         cloudflare_blocks=metrics["cloudflare_blocks"],
         cloakbrowser_successes=metrics["cloakbrowser_successes"],
     )
-    return processed, failed
 
 
 # -----------------------------------------------------------------------

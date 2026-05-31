@@ -167,7 +167,7 @@ class MatchLogsParser:
         round_winner_team: int | None,
         round_end_reason: str | None,
     ) -> dict[str, Any] | None:
-        classes = event_div.attributes.get("class", "")
+        classes = event_div.attributes.get("class") or ""
 
         # Determine event type
         event_type = self._determine_event_type(event_div, classes)
@@ -248,7 +248,7 @@ class MatchLogsParser:
             )
 
         # Headshot indicator
-        classes = event_div.attributes.get("class", "")
+        classes = event_div.attributes.get("class") or ""
         result["is_headshot"] = 1 if "headshot" in classes or "mod-hs" in classes else 0
 
         # Wallbang indicator

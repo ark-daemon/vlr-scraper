@@ -14,14 +14,6 @@ from parser_helpers import (
     parse_int,
 )
 
-# Buy type CSS class â†’ normalized name
-BUY_TYPE_CLASS_MAP = {
-    "mod-eco": "eco",
-    "mod-semi-eco": "semi-eco",
-    "mod-semi-full": "semi-buy",
-    "mod-full": "full-buy",
-}
-
 
 class MatchEconomyParser:
     """

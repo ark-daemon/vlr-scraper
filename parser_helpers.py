@@ -3,12 +3,8 @@
 from __future__ import annotations
 
 import re
-from typing import Any
 
-from bs4 import BeautifulSoup, Tag
-from selectolax.parser import HTMLParser, Node
-
-from config import AGENT_ALIASES, CANONICAL_AGENTS
+from config import AGENT_ALIASES, CANONICAL_AGENTS, settings
 
 # ---------------------------------------------------------------------------
 # Regex patterns for VLR integer IDs
@@ -142,55 +138,13 @@ def normalize_agent(name: str | None) -> str | None:
 # ---------------------------------------------------------------------------
 # selectolax helpers
 # ---------------------------------------------------------------------------
-
-
-def sel_text(node: Node | None) -> str | None:
-    if node is None:
-        return None
-    return clean_text(node.text(strip=True))
-
-
-def sel_attr(node: Node | None, attr: str) -> str | None:
-    if node is None:
-        return None
-    return node.attributes.get(attr)
-
-
-def sel_css(root: HTMLParser | Node, selector: str) -> Node | None:
-    result = root.css_first(selector)
-    return result
-
-
-def sel_css_all(root: HTMLParser | Node, selector: str) -> list[Node]:
-    return root.css(selector)
-
-
-def parse_selectolax(html: str) -> HTMLParser:
-    return HTMLParser(html)
+# (intentionally empty — direct selectolax API used throughout)
 
 
 # ---------------------------------------------------------------------------
 # BeautifulSoup helpers (fallback)
 # ---------------------------------------------------------------------------
-
-
-def parse_bs4(html: str) -> BeautifulSoup:
-    return BeautifulSoup(html, "html.parser")
-
-
-def bs4_text(tag: Tag | None) -> str | None:
-    if tag is None:
-        return None
-    return clean_text(tag.get_text())
-
-
-def bs4_attr(tag: Tag | None, attr: str) -> str | None:
-    if tag is None:
-        return None
-    val = tag.get(attr)
-    if isinstance(val, list):
-        return " ".join(val)
-    return str(val) if val else None
+# (removed — no longer used in the codebase)
 
 
 # ---------------------------------------------------------------------------
@@ -210,96 +164,12 @@ def is_404(html: str) -> bool:
 # URL building
 # ---------------------------------------------------------------------------
 
-BASE_URL = "https://www.vlr.gg"
-
-
 def full_url(path: str) -> str:
     if path.startswith("http"):
         return path
     if not path.startswith("/"):
         path = "/" + path
-    return BASE_URL + path
+    return settings.BASE_URL + path
 
 
-# ---------------------------------------------------------------------------
-# Table row parser for Overview stats
-# ---------------------------------------------------------------------------
-
-
-def parse_overview_row(
-    tds: list[Node | Tag],
-    match_id: int,
-    map_play_id: int | None,
-    team_id: int | None,
-) -> dict[str, Any] | None:
-    """
-    Parse a single player row from the Overview stats table.
-    Column order: [0]=Player [1]=Agent [2]=Rating [3]=ACS [4]=K [5]=D [6]=A
-    [7]=+/- [8]=KAST% [9]=ADR [10]=HS% [11]=FK [12]=FD [13]=FKÂ±
-    """
-    if len(tds) < 14:
-        return None
-
-    # Determine if these are selectolax Nodes or BS4 Tags
-    if isinstance(tds[0], Node):
-
-        def get_text(td: Node) -> str:
-            return clean_text(td.text(strip=True)) or ""
-
-        def get_attr(td: Node, a: str) -> str | None:
-            return td.attributes.get(a)
-
-        def find_child(td: Node, sel: str) -> Node | None:
-            return td.css_first(sel)
-
-        def find_attr_in(td: Node, child_sel: str, attr: str) -> str | None:
-            child = td.css_first(child_sel)
-            return child.attributes.get(attr) if child else None
-    else:
-
-        def get_text(td):
-            return bs4_text(td) or ""
-
-        def get_attr(td, a):
-            return td.get(a)
-
-        def find_child(td, sel):
-            return td.select_one(sel)
-
-        def find_attr_in(td, child_sel, attr):
-            child = td.select_one(child_sel)
-            return child.get(attr) if child else None
-
-    # Player ID from link href
-    player_href = find_attr_in(tds[0], "a", "href") or ""
-    player_id = extract_player_id(player_href)
-    if not player_id:
-        return None
-
-    # Agent from img alt
-    agent_raw = find_attr_in(tds[1], "img", "alt")
-    agent = normalize_agent(agent_raw)
-
-    def col(i: int) -> str:
-        return get_text(tds[i])
-
-    return {
-        "match_id": match_id,
-        "map_play_id": map_play_id,
-        "player_id": player_id,
-        "team_id": team_id,
-        "agent": agent,
-        "rating": parse_float(col(2)),
-        "acs": parse_float(col(3)),
-        "kills": parse_int(col(4)),
-        "deaths": parse_int(col(5)),
-        "assists": parse_int(col(6)),
-        "kd_diff": parse_kd_diff(col(7)),
-        "kast": parse_percent(col(8)),
-        "adr": parse_float(col(9)),
-        "hs_pct": parse_percent(col(10)),
-        "fk": parse_int(col(11)),
-        "fd": parse_int(col(12)),
-        "fk_diff": parse_kd_diff(col(13)),
-        "rounds_played": None,  # derived from map, set by caller if known
-    }
+# (parse_overview_row removed — dead code; overview parsing is done inline in match_overview.py)

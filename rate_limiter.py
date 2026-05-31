@@ -71,7 +71,7 @@ _global_limiter: TokenBucketRateLimiter | None = None
 
 def get_limiter(rate: float = 0.67, capacity: float = 3.0) -> TokenBucketRateLimiter:
     global _global_limiter
-    if _global_limiter is None:
+    if _global_limiter is None or _global_limiter.rate != rate or _global_limiter.capacity != capacity:
         _global_limiter = TokenBucketRateLimiter(rate=rate, capacity=capacity)
     return _global_limiter
 

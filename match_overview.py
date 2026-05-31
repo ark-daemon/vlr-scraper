@@ -245,7 +245,7 @@ class MatchOverviewParser:
                     self.game_id_to_map_play_id[game_id] = map_play_id
 
         # Parse overview stats table
-        stat_rows = self._parse_overview_table(block, match_data, map_play_id, game_id)
+        stat_rows = self._parse_overview_table(block, match_data, map_play_id)
         if stat_rows:
             player_ids = [row["player_id"] for row in stat_rows if row.get("player_id")]
             if player_ids:
@@ -332,7 +332,6 @@ class MatchOverviewParser:
         block: Node,
         match_data: dict[str, Any],
         map_play_id: int | None,
-        game_id: str,
     ) -> list[dict[str, Any]]:
         """
         Parse all wf-table-inset rows from this game block.

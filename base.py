@@ -120,7 +120,6 @@ class AsyncScraper:
                 if response.status_code == 429:
                     retry_after = int(response.headers.get("Retry-After", 60))
                     await self.limiter.wait_for_retry_after(retry_after)
-                    await self._record_failure()  # 429 = server pushing back
                     continue
 
                 if response.status_code == 404:
@@ -230,10 +229,11 @@ class AsyncScraper:
         global _browser_cookies, _browser_user_agent, _browser_last_refresh_at
         async with _browser_lock:
             if _browser_cookies and time.time() - _browser_last_refresh_at < 60:
+                wait = 60.0 - (time.time() - _browser_last_refresh_at) + 1.0
                 logger.info(
-                    "CloakBrowser session recently refreshed by another task. Retrying with shared cookies."
+                    f"CloakBrowser session fresh. Waiting {wait:.0f}s before next launch."
                 )
-                return None
+                await asyncio.sleep(wait)
 
             browser = None
             logger.info("Launching CloakBrowser for challenged page...")

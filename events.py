@@ -268,7 +268,7 @@ class EventsScraper(AsyncScraper):
         if not text:
             return None, None
         # Try to split on em-dash or regular dash
-        parts = re.split(r"[â€“\-â€”]", text, maxsplit=1)
+        parts = re.split(r"[\u2013\-\u2014]", text, maxsplit=1)
         if len(parts) == 2:
             return clean_text(parts[0]), clean_text(parts[1])
         return clean_text(text), None
