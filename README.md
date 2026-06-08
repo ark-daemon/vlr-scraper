@@ -1,10 +1,8 @@
-# Structural Web Data Extraction Engine
+# VLR Scraper — Valorant Esports Data Pipeline
 
-[![Python](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/)
-[![Code style: ruff](https://img.shields.io/badge/code%20style-ruff-000000.svg)](https://github.com/astral-sh/ruff)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+An async Python 3.11+ pipeline for extracting Valorant esports data from VLR.gg — match results, player stats, team rankings, event placements, agent picks, and round-by-round event logs. Built for performance analytics, betting research, and historical backfill of competitive Valorant data.
 
-A production-grade, asynchronous pipeline for extracting structured DOM data from dynamic web targets. Built around a queue-based crawl architecture with resilient error handling, circuit-breaker patterns, and a configurable export layer.
+Scraped data covers matches, map scores, round logs, player career stats, team rosters, regional rankings, and tournament results — all stored in a normalized SQLite warehouse and exportable to JSON, CSV, or Parquet.
 
 ---
 
