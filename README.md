@@ -1,9 +1,9 @@
-# VLR Scraper — Valorant Esports Data Pipeline
+# VLR Scraper â€” Valorant Esports Data Pipeline
 
 [![Python](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-Async Python 3.11+ scraper for **Valorant esports data from [VLR.gg](https://www.vlr.gg)** — match results, player stats, team rankings, event placements, agent picks, and round-by-round logs.
+Async Python 3.11+ scraper for **Valorant esports data from [VLR.gg](https://www.vlr.gg)** â€” match results, player stats, team rankings, event placements, agent picks, and round-by-round logs.
 
 Data is stored in a local SQLite warehouse and can be exported to JSON, CSV, or Parquet.
 
@@ -52,7 +52,7 @@ All settings load from `.env` (see `.env.example`). Important defaults:
 | `DB_PATH` | `vlr_scraper.db` | SQLite database path |
 | `RATE_LIMIT_RPS` | `0.67` | Max requests per second (~1.5s between requests) |
 | `CONCURRENCY` | `3` | Concurrent workers |
-| `USER_AGENT` | `vlr-scraper/1.0 (research)` | Request identity — set a real contact |
+| `USER_AGENT` | `vlr-scraper/1.0 (research)` | Request identity â€” set a real contact |
 | `BASE_URL` | `https://www.vlr.gg` | Target site |
 
 ## Project layout
@@ -82,4 +82,7 @@ pytest -q
 
 ## License
 
-MIT © 2026 ark-daemon
+MIT Â© 2026 ark-daemon
+## Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md). Security reports: [SECURITY.md](SECURITY.md). Changes: [CHANGELOG.md](CHANGELOG.md).
