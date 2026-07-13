@@ -15,7 +15,6 @@ from pathlib import Path
 
 import typer
 from loguru import logger
-from rich.console import Console
 from rich.progress import (
     BarColumn,
     MofNCompleteColumn,
@@ -30,6 +29,14 @@ from rich.table import Table
 
 import vlr_scraper.queries as queries
 from vlr_scraper.base import AsyncScraper
+from vlr_scraper.cli_ui import (
+    configure_rich_logging,
+    console,
+    end_summary_table,
+    startup_panel,
+    status_table,
+    timed_run,
+)
 from vlr_scraper.config import settings
 from vlr_scraper.connection import execute_read, execute_write, init_db
 from vlr_scraper.events import EventsScraper
@@ -43,10 +50,12 @@ from vlr_scraper.teams import TeamScraper
 
 app = typer.Typer(
     name="vlr-scraper",
-    help="VLR.gg Valorant esports scraper.",
+    help="VLR.gg [bold]Valorant[/] esports scraper — queue crawl to SQLite.",
     add_completion=False,
+    no_args_is_help=True,
+    rich_markup_mode="rich",
+    pretty_exceptions_show_locals=False,
 )
-console = Console()
 
 # -----------------------------------------------------------------------
 # Signal handling for graceful shutdown
@@ -183,23 +192,65 @@ def scrape(
         False, "--dry-run", help="Fetch/plan without writing scraper results"
     ),
 ) -> None:
-    """Run the scraper."""
+    """Run the queue-based VLR.gg crawl pipeline."""
     _setup_logging()
-    asyncio.run(
-        _scrape_main(
-            do_all=scrape_all,
-            do_events=events,
-            do_matches=matches,
-            matches_only=matches_only,
-            do_teams=teams,
-            do_players=players,
-            do_stats=stats,
-            match_id=match_id,
-            event_id=event_id,
-            force_rescrape=force_rescrape,
-            retry_failed=retry_failed,
-            dry_run=dry_run,
+    targets = []
+    if scrape_all:
+        targets.append("all")
+    if events:
+        targets.append("events")
+    if matches:
+        targets.append("matches")
+    if matches_only:
+        targets.append("matches-only")
+    if teams:
+        targets.append("teams")
+    if players:
+        targets.append("players")
+    if stats:
+        targets.append("stats")
+    if match_id is not None:
+        targets.append(f"match:{match_id}")
+    if event_id is not None:
+        targets.append(f"event:{event_id}")
+    startup_panel(
+        title="vlr-scraper · run config",
+        rows={
+            "Target": ", ".join(targets) or "(none — see --help)",
+            "DB path": settings.DB_PATH,
+            "Base URL": settings.BASE_URL,
+            "Rate limit RPS": settings.RATE_LIMIT_RPS,
+            "Concurrency": settings.CONCURRENCY,
+            "Output format": "sqlite (export separately)",
+            "Force rescrape": force_rescrape,
+            "Dry run": dry_run,
+        },
+    )
+    with timed_run() as elapsed:
+        asyncio.run(
+            _scrape_main(
+                do_all=scrape_all,
+                do_events=events,
+                do_matches=matches,
+                matches_only=matches_only,
+                do_teams=teams,
+                do_players=players,
+                do_stats=stats,
+                match_id=match_id,
+                event_id=event_id,
+                force_rescrape=force_rescrape,
+                retry_failed=retry_failed,
+                dry_run=dry_run,
+            )
         )
+    end_summary_table(
+        title="Scrape summary",
+        rows=[
+            ("Targets", ", ".join(targets) or "—"),
+            ("DB path", settings.DB_PATH),
+            ("Errors log", settings.ERRORS_LOG),
+        ],
+        duration_s=elapsed[0],
     )
 
 
@@ -730,23 +781,41 @@ def export(
         console.print(f"[red]Unknown format: {fmt}. Use json, csv, or parquet.[/red]")
         raise typer.Exit(1)
 
-    async def _run():
+    startup_panel(
+        title="vlr-scraper · export",
+        rows={
+            "DB path": settings.DB_PATH,
+            "Output format": fmt,
+            "Export dir": output_dir,
+            "Scope": table or ("all tables" if all_tables else "(none)"),
+        },
+    )
+
+    async def _run() -> list[str]:
+        written: list[str] = []
         if all_tables:
-            console.print(f"[cyan]Exporting all tables as {fmt} †’ {output_dir}[/cyan]")
             await export_all(fmt=fmt, output_dir=output_dir)
+            written = [str(output_dir / f"{t}.{fmt}") for t in EXPORTABLE_TABLES]
         elif table:
             if table not in EXPORTABLE_TABLES:
                 console.print(f"[red]Unknown table: {table}[/red]")
                 console.print(f"Available: {', '.join(EXPORTABLE_TABLES)}")
                 raise typer.Exit(1)
             path = await export_table(table=table, fmt=fmt, output_dir=output_dir)
-            console.print(f"[green]Exported †’ {path}[/green]")
+            written.append(str(path))
         else:
             console.print("[red]Specify --table or --all[/red]")
             raise typer.Exit(1)
+        return written
 
-    asyncio.run(_run())
-
+    with timed_run() as elapsed:
+        paths = asyncio.run(_run())
+    end_summary_table(
+        title="Export summary",
+        rows=[("Format", fmt), ("Files", len(paths))],
+        outputs=paths,
+        duration_s=elapsed[0],
+    )
 
 # -----------------------------------------------------------------------
 # status command
@@ -851,17 +920,7 @@ def db_stats() -> None:
 
     async def _run():
         counts = await queries.get_table_counts()
-        table = Table(title="Database Row Counts", show_header=True)
-        table.add_column("Table", style="cyan")
-        table.add_column("Rows", style="magenta", justify="right")
-
-        total_rows = 0
-        for tname, count in sorted(counts.items()):
-            table.add_row(tname, f"{count:,}")
-            total_rows += count
-
-        table.add_row("[bold]TOTAL[/bold]", f"[bold]{total_rows:,}[/bold]")
-        console.print(table)
+        status_table("Database row counts", counts)
 
     asyncio.run(_run())
 
@@ -872,21 +931,7 @@ def db_stats() -> None:
 
 
 def _setup_logging() -> None:
-    logger.remove()
-    logger.add(
-        sys.stderr,
-        level=settings.LOG_LEVEL,
-        format="<green>{time:HH:mm:ss}</green> | <level>{level: <8}</level> | "
-        "<cyan>{name}</cyan>:<cyan>{line}</cyan> - {message}",
-        colorize=True,
-    )
-    logger.add(
-        settings.ERRORS_LOG,
-        level="ERROR",
-        rotation="10 MB",
-        retention="7 days",
-        encoding="utf-8",
-    )
+    configure_rich_logging(settings.LOG_LEVEL, Path(settings.ERRORS_LOG))
 
 
 def _interactive_menu() -> None:
