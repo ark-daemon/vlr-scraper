@@ -4,15 +4,15 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Status](https://img.shields.io/badge/status-beta-orange.svg)](CHANGELOG.md)
 
-Async SQLite warehouse for **Valorant esports pages on [VLR.gg](https://www.vlr.gg)** â€” queue-driven crawl, defensive HTML parsers, JSON/CSV/Parquet export.
+Async SQLite warehouse for **Valorant esports pages on [VLR.gg](https://www.vlr.gg)** — queue-driven crawl, defensive HTML parsers, JSON/CSV/Parquet export.
 
-**Fleet:** [hltv-scraper](https://github.com/ark-daemon/hltv-scraper) Â· [dota2-scraper](https://github.com/ark-daemon/dota2-scraper) Â· [rocket-league-scraper](https://github.com/ark-daemon/rocket-league-scraper) Â· [lol-esports-scraper](https://github.com/ark-daemon/lol-esports-scraper)
+**Fleet:** [hltv-scraper](https://github.com/ark-daemon/hltv-scraper) · [dota2-scraper](https://github.com/ark-daemon/dota2-scraper) · [rocket-league-scraper](https://github.com/ark-daemon/rocket-league-scraper) · [lol-esports-scraper](https://github.com/ark-daemon/lol-esports-scraper)
 
 ---
 
 ## What it does
 
-Turns public VLR.gg HTML into a local relational dataset: events, matches, map scorelines, player/agent stats, economy and round logs, teams, rosters, rankings, and career aggregates. Designed as offline analytics infrastructure â€” not a hosted API and not affiliated with VLR.gg or Riot Games.
+Turns public VLR.gg HTML into a local relational dataset: events, matches, map scorelines, player/agent stats, economy and round logs, teams, rosters, rankings, and career aggregates. Designed as offline analytics infrastructure — not a hosted API and not affiliated with VLR.gg or Riot Games.
 
 Maturity: **beta (`0.1.0`)**. Parsers tolerate missing fields; site layout changes will still break extraction until fixtures are updated.
 
@@ -22,29 +22,29 @@ Maturity: **beta (`0.1.0`)**. Parsers tolerate missing fields; site layout chang
 
 ```
 seed / scrape flags
-        â”‚
+        │
         â–¼
 â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”     claim batch      â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
-â”‚  crawl_queue      â”‚ â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â–º â”‚  worker pool       â”‚
-â”‚  (SQLite, WAL)    â”‚                      â”‚  (asyncio + sem)  â”‚
+│  crawl_queue      │ â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â–º │  worker pool       │
+│  (SQLite, WAL)    │                      │  (asyncio + sem)  │
 â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜                      â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
-        â–²                                            â”‚
-        â”‚ mark done/fail                             â–¼
-        â”‚                                 â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
-        â”‚                                 â”‚  AsyncScraper.get  â”‚
-        â”‚                                 â”‚  httpx (primary)   â”‚
-        â”‚                                 â”‚  CloakBrowser if   â”‚
-        â”‚                                 â”‚  CF challenge/403  â”‚
-        â”‚                                 â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
-        â”‚                                           â”‚ HTML
-        â”‚                                           â–¼
-        â”‚                                 selectolax parsers
-        â”‚                                 (overview / perf /
-        â”‚                                  economy / logs â€¦)
-        â”‚                                           â”‚
+        â–²                                            │
+        │ mark done/fail                             â–¼
+        │                                 â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+        │                                 │  AsyncScraper.get  │
+        │                                 │  httpx (primary)   │
+        │                                 │  CloakBrowser if   │
+        │                                 │  CF challenge/403  │
+        │                                 â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
+        │                                           │ HTML
+        │                                           â–¼
+        │                                 selectolax parsers
+        │                                 (overview / perf /
+        │                                  economy / logs …)
+        │                                           │
         â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
-                              rows â†’ aiosqlite tables
-                              export â†’ JSON | CSV | Parquet*
+                              rows → aiosqlite tables
+                              export → JSON | CSV | Parquet*
 ```
 
 \*Parquet requires the optional `export` extra (`pandas` + `pyarrow`).
@@ -136,7 +136,7 @@ Hardcoded domain constants (not env): VLR listing regions, ranking regions, agen
 
 Exportable set matches `EXPORTABLE_TABLES` in `exporter.py` (queue/run tables are operational, not exported).
 
-**Sample rows** (from a partial local crawl â€” shape is real; completeness varies by scrape depth):
+**Sample rows** (from a partial local crawl — shape is real; completeness varies by scrape depth):
 
 ```json
 // events
@@ -152,7 +152,7 @@ Exportable set matches `EXPORTABLE_TABLES` in `exporter.py` (queue/run tables ar
 ```
 
 ```json
-// matches (queued / listing stage â€” scores often null until match detail completes)
+// matches (queued / listing stage — scores often null until match detail completes)
 {"match_id": 608990, "event_id": 2839, "status": "upcoming",
  "url": "https://www.vlr.gg/608990/karalaget-vs-wack-good-game-ligaen-2026-winter-division-1-r1"}
 ```
@@ -164,10 +164,10 @@ Exportable set matches `EXPORTABLE_TABLES` in `exporter.py` (queue/run tables ar
 - **Layout fragility.** Parsers are selector-based against VLR HTML; redesigns break fields silently (nulls) more often than hard crashes.
 - **Two-stage data quality.** Event/match *discovery* can leave `team*_score` null until queue workers finish match detail pages.
 - **Cloudflare dependency.** Heavy runs may trip bot checks; CloakBrowser fallback is slower and not guaranteed.
-- **No official API.** ToS / robots compliance is the operatorâ€™s responsibility.
+- **No official API.** ToS / robots compliance is the operator’s responsibility.
 - **`beautifulsoup4` is declared** but parsing is selectolax-first; BS helpers are vestigial.
 - **Parquet** needs `pip install -e ".[export]"`.
-- **Tests** cover helpers, some fixture HTML, DB queue semantics, and smoke packaging â€” not full live-site integration.
+- **Tests** cover helpers, some fixture HTML, DB queue semantics, and smoke packaging — not full live-site integration.
 
 ---
 
@@ -190,7 +190,7 @@ Exportable set matches `EXPORTABLE_TABLES` in `exporter.py` (queue/run tables ar
 
 ## License
 
-MIT Â© ark-daemon â€” see [LICENSE](LICENSE).
+MIT © ark-daemon — see [LICENSE](LICENSE).
 
 See also [CONTRIBUTING.md](CONTRIBUTING.md), [SECURITY.md](SECURITY.md), [CHANGELOG.md](CHANGELOG.md).
 
