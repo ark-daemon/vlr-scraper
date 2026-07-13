@@ -1,4 +1,4 @@
-"""Match performance tab parser â€” kill matrix, multikills, and clutches."""
+"""Match performance tab parser €” kill matrix, multikills, and clutches."""
 
 from __future__ import annotations
 
@@ -6,8 +6,8 @@ from typing import Any
 
 from selectolax.parser import HTMLParser, Node
 
-import queries
-from parser_helpers import (
+import vlr_scraper.queries as queries
+from vlr_scraper.parser_helpers import (
     clean_text,
     extract_player_id,
     parse_int,
@@ -67,7 +67,7 @@ class MatchPerformanceParser:
             await queries.insert_performance_batch(merged)
 
     # ------------------------------------------------------------------
-    # Kill Matrix (10Ã—10 grid)
+    # Kill Matrix (10Ã-10 grid)
     # ------------------------------------------------------------------
 
     def _parse_kill_matrix(

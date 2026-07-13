@@ -1,4 +1,4 @@
-"""Global stats scraper â€" /stats page for all regions Ã— timespans."""
+"""Global stats scraper — /stats page for all regions Ã- timespans."""
 
 from __future__ import annotations
 
@@ -8,10 +8,10 @@ from typing import Any
 from loguru import logger
 from selectolax.parser import HTMLParser
 
-import queries
-from base import AsyncScraper, ScraperError
-from config import STATS_TIMESPANS, VLR_REGIONS, settings
-from parser_helpers import (
+import vlr_scraper.queries as queries
+from vlr_scraper.base import AsyncScraper, ScraperError
+from vlr_scraper.config import STATS_TIMESPANS, VLR_REGIONS, settings
+from vlr_scraper.parser_helpers import (
     clean_text,
     extract_player_id,
     extract_team_id,

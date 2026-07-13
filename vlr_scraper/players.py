@@ -1,4 +1,4 @@
-"""Players scraper â€” bio, agent career stats, event breakdowns."""
+"""Players scraper €” bio, agent career stats, event breakdowns."""
 
 from __future__ import annotations
 
@@ -9,15 +9,15 @@ from typing import Any
 from loguru import logger
 from selectolax.parser import HTMLParser
 
-import queries
-from base import (
+import vlr_scraper.queries as queries
+from vlr_scraper.base import (
     AsyncScraper,
     CloudflareBlockError,
     NotFoundError,
     ScraperError,
 )
-from config import settings
-from parser_helpers import (
+from vlr_scraper.config import settings
+from vlr_scraper.parser_helpers import (
     clean_text,
     extract_event_id,
     extract_player_id,
@@ -291,7 +291,7 @@ class PlayerScraper(AsyncScraper):
 
     @staticmethod
     def _parse_fraction(text: str) -> tuple[int | None, int | None]:
-        """Parse '2 / 5' â†’ (2, 5)"""
+        """Parse '2 / 5' †’ (2, 5)"""
         m = re.search(r"(\d+)\s*/\s*(\d+)", text)
         if m:
             return int(m.group(1)), int(m.group(2))

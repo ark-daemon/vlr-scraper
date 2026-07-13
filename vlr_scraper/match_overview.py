@@ -1,4 +1,4 @@
-"""Match overview tab parser Ã¢â‚¬â€ header, maps, and per-player stats."""
+"""Match overview tab parser Ã¢‚¬" header, maps, and per-player stats."""
 
 from __future__ import annotations
 
@@ -8,9 +8,9 @@ from typing import Any
 from loguru import logger
 from selectolax.parser import HTMLParser, Node
 
-import queries
-from config import settings
-from parser_helpers import (
+import vlr_scraper.queries as queries
+from vlr_scraper.config import settings
+from vlr_scraper.parser_helpers import (
     clean_text,
     extract_event_id,
     extract_player_id,
@@ -339,7 +339,7 @@ class MatchOverviewParser:
         """
         stats: list[dict[str, Any]] = []
 
-        # Two tables Ã¢â‚¬â€ one per team
+        # Two tables Ã¢‚¬" one per team
         tables = block.css("table.wf-table-inset")
 
         for table_idx, table in enumerate(tables):

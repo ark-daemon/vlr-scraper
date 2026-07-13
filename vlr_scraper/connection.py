@@ -10,7 +10,7 @@ from pathlib import Path
 import aiosqlite
 from loguru import logger
 
-from config import settings
+from vlr_scraper.config import settings
 
 _db_lock = asyncio.Lock()
 _write_lock = asyncio.Lock()

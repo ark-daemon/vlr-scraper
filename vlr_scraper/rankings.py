@@ -1,4 +1,4 @@
-"""Rankings scraper â€” /rankings/{region} for all 7 regions."""
+"""Rankings scraper €” /rankings/{region} for all 7 regions."""
 
 from __future__ import annotations
 
@@ -7,10 +7,10 @@ from typing import Any
 from loguru import logger
 from selectolax.parser import HTMLParser
 
-import queries
-from base import AsyncScraper, ScraperError
-from config import RANKINGS_REGIONS, settings
-from parser_helpers import (
+import vlr_scraper.queries as queries
+from vlr_scraper.base import AsyncScraper, ScraperError
+from vlr_scraper.config import RANKINGS_REGIONS, settings
+from vlr_scraper.parser_helpers import (
     clean_text,
     extract_team_id,
     full_url,

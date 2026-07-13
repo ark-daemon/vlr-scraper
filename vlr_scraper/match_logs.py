@@ -1,4 +1,4 @@
-"""Match logs tab parser â€” round-by-round kill/plant/defuse feed."""
+"""Match logs tab parser €” round-by-round kill/plant/defuse feed."""
 
 from __future__ import annotations
 
@@ -7,8 +7,8 @@ from typing import Any
 
 from selectolax.parser import HTMLParser, Node
 
-import queries
-from parser_helpers import (
+import vlr_scraper.queries as queries
+from vlr_scraper.parser_helpers import (
     clean_text,
     extract_player_id,
     parse_int,
@@ -229,7 +229,7 @@ class MatchLogsParser:
         return None
 
     def _parse_kill_event(self, event_div: Node, result: dict[str, Any]) -> None:
-        # Killer â€” usually first player link
+        # Killer €” usually first player link
         player_links = event_div.css("a[href*='/player/']")
         if len(player_links) >= 1:
             href1 = player_links[0].attributes.get("href", "")

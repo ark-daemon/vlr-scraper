@@ -13,12 +13,12 @@ import cloakbrowser
 import httpx
 from loguru import logger
 
-from config import settings
-from parser_helpers import is_404, is_cloudflare_challenge
-from rate_limiter import get_limiter
+from vlr_scraper.config import settings
+from vlr_scraper.parser_helpers import is_404, is_cloudflare_challenge
+from vlr_scraper.rate_limiter import get_limiter
 
 # ---------------------------------------------------------------------------
-# Circuit breaker â€” shared across all scraper instances
+# Circuit breaker €” shared across all scraper instances
 # ---------------------------------------------------------------------------
 _consecutive_failures: int = 0
 _cb_lock = asyncio.Lock()
@@ -151,7 +151,7 @@ class AsyncScraper:
 
                 response.raise_for_status()
 
-                # Success — reset circuit breaker
+                # Success - reset circuit breaker
                 await self._record_success()
                 return html
 

@@ -1,5 +1,5 @@
 """
-VLR.gg Scraper â€” Main CLI
+VLR.gg Scraper €” Main CLI
 Usage: python main.py --help
 """
 
@@ -28,22 +28,22 @@ from rich.progress import (
 )
 from rich.table import Table
 
-import queries
-from base import AsyncScraper
-from config import settings
-from connection import execute_read, execute_write, init_db
-from events import EventsScraper
-from exporter import EXPORTABLE_TABLES, export_all, export_table
-from matches import MatchScraper
-from parser_helpers import extract_event_id, extract_match_id
-from players import PlayerScraper
-from rankings import RankingsScraper
-from stats import StatsScraper
-from teams import TeamScraper
+import vlr_scraper.queries as queries
+from vlr_scraper.base import AsyncScraper
+from vlr_scraper.config import settings
+from vlr_scraper.connection import execute_read, execute_write, init_db
+from vlr_scraper.events import EventsScraper
+from vlr_scraper.exporter import EXPORTABLE_TABLES, export_all, export_table
+from vlr_scraper.matches import MatchScraper
+from vlr_scraper.parser_helpers import extract_event_id, extract_match_id
+from vlr_scraper.players import PlayerScraper
+from vlr_scraper.rankings import RankingsScraper
+from vlr_scraper.stats import StatsScraper
+from vlr_scraper.teams import TeamScraper
 
 app = typer.Typer(
     name="vlr-scraper",
-    help="Production-grade VLR.gg scraper.",
+    help="VLR.gg Valorant esports scraper.",
     add_completion=False,
 )
 console = Console()
@@ -559,7 +559,7 @@ async def _scrape_main(
     # Crash recovery: reset any in_progress items
     reset_count = await queries.queue_reset_in_progress()
     if reset_count:
-        logger.info(f"Crash recovery: reset {reset_count} in_progress â†’ pending")
+        logger.info(f"Crash recovery: reset {reset_count} in_progress †’ pending")
 
     # Single match
     if match_id is not None:
@@ -732,7 +732,7 @@ def export(
 
     async def _run():
         if all_tables:
-            console.print(f"[cyan]Exporting all tables as {fmt} â†’ {output_dir}[/cyan]")
+            console.print(f"[cyan]Exporting all tables as {fmt} †’ {output_dir}[/cyan]")
             await export_all(fmt=fmt, output_dir=output_dir)
         elif table:
             if table not in EXPORTABLE_TABLES:
@@ -740,7 +740,7 @@ def export(
                 console.print(f"Available: {', '.join(EXPORTABLE_TABLES)}")
                 raise typer.Exit(1)
             path = await export_table(table=table, fmt=fmt, output_dir=output_dir)
-            console.print(f"[green]Exported â†’ {path}[/green]")
+            console.print(f"[green]Exported †’ {path}[/green]")
         else:
             console.print("[red]Specify --table or --all[/red]")
             raise typer.Exit(1)

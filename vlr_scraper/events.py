@@ -1,4 +1,4 @@
-"""Events scraper â€” crawls all VLR regions and seeds the crawl queue."""
+"""Events scraper €” crawls all VLR regions and seeds the crawl queue."""
 
 from __future__ import annotations
 
@@ -8,10 +8,10 @@ from typing import Any
 from loguru import logger
 from selectolax.parser import HTMLParser
 
-import queries
-from base import AsyncScraper, CloudflareBlockError, NotFoundError, ScraperError
-from config import VLR_REGIONS, settings
-from parser_helpers import (
+import vlr_scraper.queries as queries
+from vlr_scraper.base import AsyncScraper, CloudflareBlockError, NotFoundError, ScraperError
+from vlr_scraper.config import VLR_REGIONS, settings
+from vlr_scraper.parser_helpers import (
     clean_text,
     extract_event_id,
     extract_match_id,
@@ -264,7 +264,7 @@ class EventsScraper(AsyncScraper):
 
     @staticmethod
     def _parse_date_range(text: str) -> tuple[str | None, str | None]:
-        """Parse 'Jan 01 â€“ Jan 31, 2025' into start/end date strings."""
+        """Parse 'Jan 01 – Jan 31, 2025' into start/end date strings."""
         if not text:
             return None, None
         # Try to split on em-dash or regular dash

@@ -11,19 +11,19 @@ from typing import Any
 
 from loguru import logger
 
-import queries
-from base import (
+import vlr_scraper.queries as queries
+from vlr_scraper.base import (
     AsyncScraper,
     CloudflareBlockError,
     NotFoundError,
     ScraperError,
 )
-from config import settings
-from match_economy import MatchEconomyParser
-from match_logs import MatchLogsParser
-from match_overview import MatchOverviewParser
-from match_performance import MatchPerformanceParser
-from parser_helpers import extract_match_id
+from vlr_scraper.config import settings
+from vlr_scraper.match_economy import MatchEconomyParser
+from vlr_scraper.match_logs import MatchLogsParser
+from vlr_scraper.match_overview import MatchOverviewParser
+from vlr_scraper.match_performance import MatchPerformanceParser
+from vlr_scraper.parser_helpers import extract_match_id
 
 
 class MatchScraper(AsyncScraper):

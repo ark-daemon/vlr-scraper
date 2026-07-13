@@ -1,4 +1,4 @@
-"""Match economy tab parser â€” per-team summary and per-round buy details."""
+"""Match economy tab parser €” per-team summary and per-round buy details."""
 
 from __future__ import annotations
 
@@ -7,8 +7,8 @@ from typing import Any
 
 from selectolax.parser import HTMLParser, Node
 
-import queries
-from parser_helpers import (
+import vlr_scraper.queries as queries
+from vlr_scraper.parser_helpers import (
     clean_text,
     parse_bank,
     parse_int,
@@ -256,7 +256,7 @@ class MatchEconomyParser:
 
     @staticmethod
     def _parse_wl_fraction(text: str) -> tuple[int | None, int | None]:
-        """Parse '12 / 20' â†’ (12, 20)"""
+        """Parse '12 / 20' †’ (12, 20)"""
         m = re.search(r"(\d+)\s*/\s*(\d+)", text)
         if m:
             return int(m.group(1)), int(m.group(2))
@@ -281,10 +281,10 @@ class MatchEconomyParser:
     def _classes_to_buy_type(classes: str) -> str | None:
         """
         CRITICAL: buy type is a CSS class, NOT text content.
-        .mod-eco â†’ eco
-        .mod-semi-eco â†’ semi-eco
-        .mod-semi-full â†’ semi-buy
-        .mod-full â†’ full-buy
+        .mod-eco †’ eco
+        .mod-semi-eco †’ semi-eco
+        .mod-semi-full †’ semi-buy
+        .mod-full †’ full-buy
         """
         if "mod-full" in classes and "mod-semi" not in classes:
             return "full-buy"

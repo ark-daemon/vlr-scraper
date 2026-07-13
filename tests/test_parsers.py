@@ -14,11 +14,11 @@ import pytest
 # Ensure project root is on path
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from match_economy import MatchEconomyParser
-from match_logs import MatchLogsParser
-from match_overview import MatchOverviewParser
-from match_performance import MatchPerformanceParser
-from parser_helpers import (
+from vlr_scraper.match_economy import MatchEconomyParser
+from vlr_scraper.match_logs import MatchLogsParser
+from vlr_scraper.match_overview import MatchOverviewParser
+from vlr_scraper.match_performance import MatchPerformanceParser
+from vlr_scraper.parser_helpers import (
     clean_text,
     extract_event_id,
     extract_match_id,
@@ -175,7 +175,7 @@ class TestNormalizeAgent:
 
 
 # ---------------------------------------------------------------------------
-# Economy parser â€” buy type from CSS class
+# Economy parser €” buy type from CSS class
 # ---------------------------------------------------------------------------
 
 
@@ -213,7 +213,7 @@ class TestEconomyBuyType:
 
 
 # ---------------------------------------------------------------------------
-# Overview parser â€” basic HTML parsing
+# Overview parser €” basic HTML parsing
 # ---------------------------------------------------------------------------
 
 MINIMAL_MATCH_HTML = """
@@ -282,7 +282,7 @@ class TestMatchOverviewParser:
 
 
 # ---------------------------------------------------------------------------
-# Performance parser â€” merge logic
+# Performance parser €” merge logic
 # ---------------------------------------------------------------------------
 
 
@@ -363,7 +363,7 @@ class TestPerformanceParser:
 
 
 # ---------------------------------------------------------------------------
-# Logs parser â€” event type detection
+# Logs parser €” event type detection
 # ---------------------------------------------------------------------------
 
 KILL_EVENT_HTML = """
@@ -431,7 +431,7 @@ class TestLogsParser:
 
 class TestTokenBucketRateLimiter:
     def test_acquire_depletes_token(self):
-        from rate_limiter import TokenBucketRateLimiter
+        from vlr_scraper.rate_limiter import TokenBucketRateLimiter
 
         limiter = TokenBucketRateLimiter(rate=10.0, capacity=5.0)
         initial = limiter.tokens
@@ -445,18 +445,18 @@ class TestTokenBucketRateLimiter:
     def test_refill_over_time(self):
         import time
 
-        from rate_limiter import TokenBucketRateLimiter
+        from vlr_scraper.rate_limiter import TokenBucketRateLimiter
 
         limiter = TokenBucketRateLimiter(rate=100.0, capacity=10.0)
         limiter.tokens = 0.0
         limiter._last_refill = time.monotonic() - 0.5  # 0.5 seconds ago
         limiter._refill()
-        # Should have added ~50 tokens (100 RPS Ã— 0.5s) capped at capacity 10
+        # Should have added ~50 tokens (100 RPS Ã- 0.5s) capped at capacity 10
         assert limiter.tokens == pytest.approx(10.0)
 
 
 # ---------------------------------------------------------------------------
-# DB queries â€” in-memory SQLite
+# DB queries €” in-memory SQLite
 # ---------------------------------------------------------------------------
 
 
@@ -464,15 +464,15 @@ class TestTokenBucketRateLimiter:
 def temp_db(tmp_path, monkeypatch):
     """Use a temp SQLite file for DB tests."""
     db_path = str(tmp_path / "test.db")
-    import connection as conn_mod
+    import vlr_scraper.connection as conn_mod
 
     asyncio.run(conn_mod.close_connection())
-    monkeypatch.setattr("config.settings.DB_PATH", db_path)
+    monkeypatch.setattr("vlr_scraper.config.settings.DB_PATH", db_path)
     monkeypatch.setattr(conn_mod, "_write_lock", asyncio.Lock())
     monkeypatch.setattr(conn_mod, "_db_lock", asyncio.Lock())
 
     async def setup():
-        from connection import init_db
+        from vlr_scraper.connection import init_db
 
         await init_db()
 
@@ -484,7 +484,7 @@ def temp_db(tmp_path, monkeypatch):
 class TestDBQueries:
     def test_upsert_event(self, temp_db):
         async def run():
-            import queries as q
+            import vlr_scraper.queries as q
 
             await q.upsert_event(
                 {
@@ -502,7 +502,7 @@ class TestDBQueries:
 
     def test_upsert_team(self, temp_db):
         async def run():
-            import queries as q
+            import vlr_scraper.queries as q
 
             await q.upsert_team(
                 {
@@ -512,7 +512,7 @@ class TestDBQueries:
                     "region": "na",
                 }
             )
-            from connection import execute_read_one
+            from vlr_scraper.connection import execute_read_one
 
             row = await execute_read_one("SELECT name FROM teams WHERE team_id=?", (100,))
             assert row["name"] == "Sentinels"
@@ -521,7 +521,7 @@ class TestDBQueries:
 
     def test_upsert_player(self, temp_db):
         async def run():
-            import queries as q
+            import vlr_scraper.queries as q
 
             await q.upsert_player(
                 {
@@ -531,7 +531,7 @@ class TestDBQueries:
                     "country": "Brazil",
                 }
             )
-            from connection import execute_read_one
+            from vlr_scraper.connection import execute_read_one
 
             row = await execute_read_one("SELECT ign FROM players WHERE player_id=?", (42,))
             assert row["ign"] == "aspas"
@@ -540,7 +540,7 @@ class TestDBQueries:
 
     def test_queue_add_and_progress(self, temp_db):
         async def run():
-            import queries as q
+            import vlr_scraper.queries as q
 
             await q.queue_add("https://www.vlr.gg/12345/match", "match")
             pending = await q.queue_next_pending("match", limit=10)
@@ -559,7 +559,7 @@ class TestDBQueries:
 
     def test_queue_reset_in_progress(self, temp_db):
         async def run():
-            import queries as q
+            import vlr_scraper.queries as q
 
             await q.queue_add("https://www.vlr.gg/11111/match", "match")
             pending = await q.queue_next_pending("match", limit=10)
@@ -578,8 +578,8 @@ class TestDBQueries:
 
     def test_queue_retry_uses_cooldown(self, temp_db):
         async def run():
-            import queries as q
-            from connection import execute_read_one
+            import vlr_scraper.queries as q
+            from vlr_scraper.connection import execute_read_one
 
             await q.queue_add("https://www.vlr.gg/22222/match", "match")
             pending = await q.queue_next_pending("match", limit=10)
@@ -599,7 +599,7 @@ class TestDBQueries:
 
     def test_queue_claim_pending_is_atomic(self, temp_db):
         async def run():
-            import queries as q
+            import vlr_scraper.queries as q
 
             await q.queue_add("https://www.vlr.gg/33333/match", "match")
             claimed = await q.queue_claim_pending("match", limit=10)
@@ -612,7 +612,7 @@ class TestDBQueries:
 
     def test_scrape_run_records_metrics(self, temp_db):
         async def run():
-            import queries as q
+            import vlr_scraper.queries as q
 
             run_id = await q.scrape_run_start("test")
             await q.scrape_run_finish(run_id, "completed", 2, 1, 3, 4)
@@ -625,7 +625,7 @@ class TestDBQueries:
 
     def test_upsert_match(self, temp_db):
         async def run():
-            import queries as q
+            import vlr_scraper.queries as q
 
             await q.ensure_teams([1, 2])
             await q.upsert_match(
@@ -641,7 +641,7 @@ class TestDBQueries:
                     "url": "https://www.vlr.gg/9999/test",
                 }
             )
-            from connection import execute_read_one
+            from vlr_scraper.connection import execute_read_one
 
             row = await execute_read_one(
                 "SELECT team1_score FROM matches WHERE match_id=?", (9999,)
@@ -652,7 +652,7 @@ class TestDBQueries:
 
     def test_insert_player_stats_batch(self, temp_db):
         async def run():
-            import queries as q
+            import vlr_scraper.queries as q
 
             # Need a match first
             await q.ensure_team(10)
@@ -688,7 +688,7 @@ class TestDBQueries:
                     },
                 ]
             )
-            from connection import execute_read_one
+            from vlr_scraper.connection import execute_read_one
 
             row = await execute_read_one(
                 "SELECT kills FROM match_player_stats WHERE match_id=?", (1234,)
@@ -699,7 +699,7 @@ class TestDBQueries:
 
     def test_insert_economy_rounds_buy_type(self, temp_db):
         async def run():
-            import queries as q
+            import vlr_scraper.queries as q
 
             await q.ensure_team(10)
             await q.upsert_match(
@@ -735,7 +735,7 @@ class TestDBQueries:
                     },
                 ]
             )
-            from connection import execute_read
+            from vlr_scraper.connection import execute_read
 
             rows = await execute_read(
                 "SELECT buy_type, round_won FROM match_economy_rounds WHERE match_id=?", (5555,)

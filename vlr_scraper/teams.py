@@ -1,4 +1,4 @@
-"""Teams scraper â€” team page, roster, map stats, match history."""
+"""Teams scraper €” team page, roster, map stats, match history."""
 
 from __future__ import annotations
 
@@ -9,15 +9,15 @@ from typing import Any
 from loguru import logger
 from selectolax.parser import HTMLParser
 
-import queries
-from base import (
+import vlr_scraper.queries as queries
+from vlr_scraper.base import (
     AsyncScraper,
     CloudflareBlockError,
     NotFoundError,
     ScraperError,
 )
-from config import settings
-from parser_helpers import (
+from vlr_scraper.config import settings
+from vlr_scraper.parser_helpers import (
     clean_text,
     extract_player_id,
     extract_team_id,
@@ -215,7 +215,7 @@ class TeamScraper(AsyncScraper):
             if not map_name:
                 continue
 
-            # Column order varies â€” try to identify by header
+            # Column order varies €” try to identify by header
             played = parse_int(col(1))
             won = parse_int(col(2))
             lost = parse_int(col(3))

@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import re
 
-from config import AGENT_ALIASES, CANONICAL_AGENTS, settings
+from vlr_scraper.config import AGENT_ALIASES, CANONICAL_AGENTS, settings
 
 # ---------------------------------------------------------------------------
 # Regex patterns for VLR integer IDs
@@ -85,7 +85,7 @@ def parse_float(value: str | None, default: float | None = None) -> float | None
 
 
 def parse_percent(value: str | None) -> float | None:
-    """Parse '72%' â†’ 0.72"""
+    """Parse '72%' †’ 0.72"""
     if value is None:
         return None
     cleaned = str(value).strip().rstrip("%")
@@ -96,7 +96,7 @@ def parse_percent(value: str | None) -> float | None:
 
 
 def parse_bank(value: str | None) -> int | None:
-    """Parse '$3,800' â†’ 3800"""
+    """Parse '$3,800' †’ 3800"""
     if value is None:
         return None
     cleaned = re.sub(r"[^\d]", "", str(value))
@@ -104,7 +104,7 @@ def parse_bank(value: str | None) -> int | None:
 
 
 def parse_kd_diff(value: str | None) -> int | None:
-    """Parse '+12' or '-5' â†’ int"""
+    """Parse '+12' or '-5' †’ int"""
     if value is None:
         return None
     cleaned = str(value).strip().replace("+", "")
@@ -138,13 +138,13 @@ def normalize_agent(name: str | None) -> str | None:
 # ---------------------------------------------------------------------------
 # selectolax helpers
 # ---------------------------------------------------------------------------
-# (intentionally empty — direct selectolax API used throughout)
+# (intentionally empty - direct selectolax API used throughout)
 
 
 # ---------------------------------------------------------------------------
 # BeautifulSoup helpers (fallback)
 # ---------------------------------------------------------------------------
-# (removed — no longer used in the codebase)
+# (removed - no longer used in the codebase)
 
 
 # ---------------------------------------------------------------------------
@@ -172,4 +172,4 @@ def full_url(path: str) -> str:
     return settings.BASE_URL + path
 
 
-# (parse_overview_row removed — dead code; overview parsing is done inline in match_overview.py)
+# (parse_overview_row removed - dead code; overview parsing is done inline in match_overview.py)

@@ -1,4 +1,4 @@
-"""Export utility â€” JSON, CSV, and Parquet export from SQLite."""
+"""Export utility €” JSON, CSV, and Parquet export from SQLite."""
 
 from __future__ import annotations
 
@@ -9,7 +9,7 @@ from typing import Any
 
 from loguru import logger
 
-from connection import execute_read
+from vlr_scraper.connection import execute_read
 
 try:
     import pandas as pd
@@ -54,7 +54,7 @@ async def export_table(
         out_path.touch()
         return out_path
 
-    # Convert aiosqlite.Row â†’ list of dicts
+    # Convert aiosqlite.Row †’ list of dicts
     data: list[dict[str, Any]] = [dict(row) for row in rows]
 
     if fmt == "json":
@@ -71,7 +71,7 @@ def _write_json(data: list[dict], table: str, output_dir: Path) -> Path:
     out_path = output_dir / f"{table}.json"
     with out_path.open("w", encoding="utf-8") as f:
         json.dump(data, f, ensure_ascii=False, indent=2, default=str)
-    logger.info(f"Exported {len(data)} rows â†’ {out_path}")
+    logger.info(f"Exported {len(data)} rows †’ {out_path}")
     return out_path
 
 
@@ -85,7 +85,7 @@ def _write_csv(data: list[dict], table: str, output_dir: Path) -> Path:
         writer = csv.DictWriter(f, fieldnames=fieldnames)
         writer.writeheader()
         writer.writerows(data)
-    logger.info(f"Exported {len(data)} rows â†’ {out_path}")
+    logger.info(f"Exported {len(data)} rows †’ {out_path}")
     return out_path
 
 
@@ -98,7 +98,7 @@ def _write_parquet(data: list[dict], table: str, output_dir: Path) -> Path:
     out_path = output_dir / f"{table}.parquet"
     df = pd.DataFrame(data)
     df.to_parquet(out_path, index=False)
-    logger.info(f"Exported {len(data)} rows â†’ {out_path}")
+    logger.info(f"Exported {len(data)} rows †’ {out_path}")
     return out_path
 
 

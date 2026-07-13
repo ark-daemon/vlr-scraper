@@ -6,8 +6,8 @@ import json
 from datetime import UTC, datetime, timedelta
 from typing import Any
 
-from config import settings
-from connection import (
+from vlr_scraper.config import settings
+from vlr_scraper.connection import (
     execute_read,
     execute_read_one,
     execute_write,
