@@ -908,6 +908,44 @@ def queue_dashboard() -> None:
     status()
 
 
+@app.command("snapshot")
+def snapshot(
+    out: Path = typer.Option(
+        Path("export"),
+        "--out",
+        "-o",
+        help="Directory for data.json/csv/parquet + manifest.json.",
+    ),
+) -> None:
+    """Write fleet match-level snapshot for dashboard / R2 publish."""
+    from vlr_scraper.snapshot import write_snapshot
+
+    _setup_logging()
+    startup_panel(
+        title="vlr-scraper · snapshot",
+        rows={
+            "DB path": settings.DB_PATH,
+            "Output dir": out,
+            "Grain": "match/series",
+            "ID strategy": "vlr:{match_id}",
+        },
+    )
+    with timed_run() as elapsed:
+        manifest = write_snapshot(settings.DB_PATH, out)
+    end_summary_table(
+        title="Snapshot summary",
+        rows=[
+            ("Records", manifest.get("record_count")),
+            ("Status mapped", manifest.get("stats", {}).get("status_mapped")),
+            ("Status heuristic", manifest.get("stats", {}).get("status_heuristic")),
+            ("Dropped (no teams)", manifest.get("stats", {}).get("dropped_no_teams")),
+            ("URLs constructed", manifest.get("stats", {}).get("url_constructed")),
+        ],
+        outputs=[out / "manifest.json", out / "data.json", out / "data.csv", out / "data.parquet"],
+        duration_s=elapsed[0],
+    )
+
+
 # -----------------------------------------------------------------------
 # stats (DB row counts) command
 # -----------------------------------------------------------------------

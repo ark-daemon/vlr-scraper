@@ -39,3 +39,7 @@ dist/
 # --- Archives ---
 *.tar.gz
 *.zip
+
+# Fleet match snapshots
+export/
+
