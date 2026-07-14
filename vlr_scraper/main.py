@@ -916,6 +916,9 @@ def snapshot(
         "-o",
         help="Directory for data.json/csv/parquet + manifest.json.",
     ),
+    publish: bool = typer.Option(
+        False, "--publish", help="Upload export/ to Cloudflare R2 after writing."
+    ),
 ) -> None:
     """Write fleet match-level snapshot for dashboard / R2 publish."""
     from vlr_scraper.snapshot import write_snapshot
@@ -928,6 +931,7 @@ def snapshot(
             "Output dir": out,
             "Grain": "match/series",
             "ID strategy": "vlr:{match_id}",
+            "Publish R2": publish,
         },
     )
     with timed_run() as elapsed:
@@ -944,6 +948,31 @@ def snapshot(
         outputs=[out / "manifest.json", out / "data.json", out / "data.csv", out / "data.parquet"],
         duration_s=elapsed[0],
     )
+    if publish:
+        _publish_r2(out, "vlr")
+
+
+@app.command("publish")
+def publish_cmd(
+    out: Path = typer.Option(Path("export"), "--out", "-o", help="Local export directory."),
+) -> None:
+    """Upload export/ snapshot to Cloudflare R2 and verify public manifest."""
+    _setup_logging()
+    _publish_r2(out, "vlr")
+
+
+def _publish_r2(out: Path, slug: str) -> None:
+    from vlr_scraper.r2_publish import upload_snapshot
+
+    with timed_run() as elapsed:
+        result = upload_snapshot(export_dir=out, repo_slug=slug)
+    end_summary_table(
+        title="Publish summary",
+        rows=[("Records verified", result["record_count"]), ("Manifest URL", result["manifest_url"])],
+        outputs=list(result["urls"].values()),
+        duration_s=elapsed[0],
+    )
+    console.print(f"[bold green]Public manifest:[/] {result['manifest_url']}")
 
 
 # -----------------------------------------------------------------------
